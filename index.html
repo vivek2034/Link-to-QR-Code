@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link to QR Code Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298, #0b0d1c);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #ffcc00;
+            margin-bottom: 20px;
+            text-shadow: 0px 0px 15px rgba(255, 204, 0, 0.8);
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #b3c6ff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #ffffff;
+            color: #333;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 15px 5px;
+            color: #ffffff;
+            background: linear-gradient(45deg, #ff6b6b, #f06595);
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0px 0px 15px rgba(255, 107, 107, 0.8);
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #ff8787, #f783ac);
+            box-shadow: 0px 0px 25px rgba(255, 107, 107, 1);
+            transform: scale(1.1);
+        }
+
+        button:active {
+            background: linear-gradient(45deg, #d94848, #e03177);
+            box-shadow: 0px 0px 15px rgba(255, 107, 107, 0.5);
+        }
+
+        #qrcode {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #qrcode canvas {
+            border: 5px solid #ffffff;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.5);
+        }
+
+        #history {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            text-align: left;
+            box-sizing: border-box;
+        }
+
+        #history h2 {
+            color: #ffcc00;
+            text-shadow: 0px 0px 10px rgba(255, 204, 0, 0.8);
+            margin-bottom: 10px;
+        }
+
+        #history ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #history ul li {
+            margin-bottom: 10px;
+        }
+
+        #history ul li a {
+            color: #ffcc00;
+            text-decoration: none;
+            word-wrap: break-word; /* Break long words onto the next line */
+            overflow-wrap: break-word; /* Ensures compatibility for older browsers */
+            display: inline-block; /* Prevents the link from stretching across the entire line */
+            max-width: 90%; /* Limits the width of the link */
+            white-space: normal; /* Allows wrapping */
+        }
+
+        #history ul li a:hover {
+            text-decoration: underline;
+        }
+
+        #history ul li img {
+            max-width: 50px;
+            margin-left: 10px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        /* Modal styling */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        #modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border: 5px solid #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.7);
+        }
+
+        #modal button {
+            margin-top: 20px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            button {
+                width: 100%;
+                max-width: 300px;
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Link to QR Code Converter</h1>
+    <p>Enter a link below to generate its QR code:</p>
+    <input type="text" id="linkInput" placeholder="Enter your link here" />
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <div id="qrcode"></div>
+    <button id="downloadBtn" style="display: none;" onclick="downloadQRCode()">Save QR Code</button>
+
+    <div id="history">
+        <h2>History</h2>
+        <ul id="historyList"></ul>
+    </div>
+
+    <!-- Modal for displaying QR code -->
+    <div id="modal" onclick="closeModal(event)">
+        <img id="modalImage" src="" alt="QR Code">
+        <button onclick="downloadModalQRCode(event)">Save QR Code</button>
+    </div>
+
+    <script>
+        function generateQRCode() {
+            const link = document.getElementById('linkInput').value;
+            const qrCodeContainer = document.getElementById('qrcode');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const historyList = document.getElementById('historyList');
+
+            if (link.trim() === '') {
+                alert('Please enter a valid link.');
+                return;
+            }
+
+            qrCodeContainer.innerHTML = '';
+
+            QRCode.toCanvas(link, { width: 200 }, function (error, canvas) {
+                if (error) {
+                    alert('Error generating QR code.');
+                    console.error(error);
+                    return;
+                }
+                qrCodeContainer.appendChild(canvas);
+                downloadBtn.style.display = 'inline-block';
+
+                saveHistory(link, canvas.toDataURL());
+                updateHistory();
+            });
+        }
+
+        function downloadQRCode() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('No QR code to download. Please generate one first.');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function saveHistory(link, qrCodeData) {
+            const history = JSON.parse(localStorage.getItem('qrHistory')) || [];
+            history.unshift({ link, qrCodeData });
+            if (history.length > 5) history.pop();
+            localStorage.setItem('qrHistory', JSON.stringify(history));
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('qrHistory')) || [];
+            historyList.innerHTML = '';
+
+            history.forEach(item => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+                link.href = item.link;
+                link.target = '_blank';
+                link.textContent = item.link;
+
+                const qrImage = document.createElement('img');
+                qrImage.src = item.qrCodeData;
+                qrImage.alt = "QR Code";
+                qrImage.onclick = () => openModal(item.qrCodeData);
+
+                listItem.appendChild(link);
+                listItem.appendChild(qrImage);
+                historyList.appendChild(listItem);
+            });
+        }
+
+        function openModal(qrCodeData) {
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = qrCodeData;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal(event) {
+            if (event.target.tagName === 'BUTTON') return;
+
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        function downloadModalQRCode(event) {
+            event.stopPropagation();
+
+            const modalImage = document.getElementById('modalImage');
+            if (!modalImage.src) {
+                alert('No QR code to download.');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = modalImage.src;
+            link.click();
+        }
+
+        updateHistory();
+    </script>
+</body>
+</html>
